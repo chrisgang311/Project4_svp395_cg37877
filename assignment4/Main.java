@@ -11,8 +11,11 @@
  */
 
 package assignment4; // cannot be in default package
+import java.util.List;
 import java.util.Scanner;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 
 /*
@@ -73,11 +76,12 @@ public class Main {
     	String delim = "[ ]+";
         
         while (!quit) {
+        	System.out.print("critters>");
         	userInput = kb.nextLine();
         	try {
         		String[] tokens = userInput.split(delim);
         		if (tokens.length > 3) {
-        			throw new ArrayIndexOutOfBoundsException("error processing: " + userInput);
+        			tokens[-1].equals(" ");
         		} else if (userInput.equals("quit")) {
 	        		quit = true;
 	        	} else if (userInput.equals("show")) {
@@ -89,21 +93,27 @@ public class Main {
 	        			}
 	        		} else if (tokens.length == 1) {
 	        			Critter.worldTimeStep();
+	        		} else if (tokens.length > 2) {
+	        			tokens[-1].equals(" ");
 	        		}
 	        	} else if (tokens[0].equals("seed")) { 
-	        		Critter.setSeed(Integer.parseInt(tokens[1]));
+	        		if (tokens.length == 2) {
+	        			Critter.setSeed(Integer.parseInt(tokens[1]));
+	        		} else if (tokens.length > 2) {
+	        			tokens[-1].equals(" ");
+	        		}
 	        	} else if (tokens[0].equals("make")) {
 	        		if (tokens.length == 3) {
 	        			for (int i = 0; i < Integer.parseInt(tokens[2]); i++) {
-		        			Critter.makeCritter("assignment4." + tokens[1]);
+		        			Critter.makeCritter(tokens[1]);
 		        		}
 	        		} else if (tokens.length == 2) {
-	        			Critter.makeCritter("assignment4." + tokens[1]);
+	        			Critter.makeCritter(tokens[1]);
 	        		}
 	        	} else if (tokens[0].equals("stats")) {
 	        		Class critterSub = Class.forName("assignment4." + tokens[1]);
 	        		Critter critter = (Critter) critterSub.newInstance();
-	        		List<Critter> instances =  critter.getInstances("assignment4." + tokens[1]);
+	        		List<Critter> instances =  critter.getInstances(tokens[1]);
 	        		Class<?>[] types = {List.class};
 	    			Method sub = critterSub.getMethod("runStats", types);
 	    			sub.invoke(null, instances);
