@@ -172,5 +172,39 @@ public abstract class Critter {
 	public static void worldTimeStep() {
 	}
 	
-	public static void displayWorld() {}
+	public static void displayWorld() {
+		// Creates 2D array of critters for positions on map
+		Critter[][] critterMap = new Critter[Params.world_width][Params.world_height];
+		for (Critter c : population) {
+			critterMap[c.x_coord][c.y_coord] = c;
+		}
+		
+		
+		// Prints top border
+		System.out.print("+");
+		for (int i = 0; i < Params.world_width; i++) {
+			System.out.print("-");
+		}
+		System.out.println("+" + " Number of critters: " + population.size());
+		
+		// Prints map
+		for (int i = 0; i < Params.world_height; i++) {
+			System.out.print("|");
+			for (int j = 0; j < Params.world_width; j++) {
+				if (critterMap[j][i] != null) {
+					System.out.print(critterMap[j][i].toString());
+				} else {
+					System.out.print(" ");
+				}
+			}
+			System.out.println("|");
+		}
+		
+		// Prints bottom border
+		System.out.print("+");
+		for (int i = 0; i < Params.world_width; i++) {
+			System.out.print("-");
+		}
+		System.out.println("+");
+	}
 }
