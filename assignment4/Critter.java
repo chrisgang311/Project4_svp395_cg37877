@@ -172,6 +172,70 @@ public abstract class Critter {
 	public static void worldTimeStep() {
 	}
 	
+	public static ArrayList<Critter> fightClub(ArrayList<Critter> fightList) {
+		ArrayList<Critter> moved = new ArrayList<Critter>();
+		int oldXCoord = 0;
+		int oldYCoord = 0;
+		boolean hasMoved = true;
+		while (fightList.size() > 1) {
+			boolean aFight = fightList.get(0).fight(fightList.get(1).toString());
+			boolean bFight = fightList.get(1).fight(fightList.get(0).toString());
+			if (!aFight) {
+				oldXCoord = fightList.get(0).x_coord;
+				oldYCoord = fightList.get(0).y_coord;
+				fightList.get(0).doTimeStep();
+				for (Critter c : population) {
+					if (fightList.get(0).x_coord == c.x_coord && fightList.get(0).y_coord == c.y_coord) {
+						fightList.get(0).x_coord = oldXCoord;
+						fightList.get(0).y_coord = oldYCoord;
+						hasMoved = false;
+					}
+				}
+				if (hasMoved) 
+					moved.add(fightList.get(0));
+			}
+			if (!bFight) {
+				oldXCoord = fightList.get(1).x_coord;
+				oldYCoord = fightList.get(1).y_coord;
+				fightList.get(1).doTimeStep();
+				for (Critter c : population) {
+					if (fightList.get(1).x_coord == c.x_coord && fightList.get(1).y_coord == c.y_coord) {
+						fightList.get(1).x_coord = oldXCoord;
+						fightList.get(1).y_coord = oldYCoord;
+						hasMoved = false;
+					}
+				}
+				if (hasMoved) 
+					moved.add(fightList.get(1));
+			}
+			if (fightList.get(0).x_coord == fightList.get(1).x_coord &&
+					fightList.get(0).y_coord == fightList.get(1).y_coord &&
+					fightList.get(0).energy > 0 && fightList.get(1).energy > 0) {
+				int aPower, bPower;
+				if (aFight) {
+					aPower = Critter.getRandomInt(fightList.get(0).energy + 1);
+				} else {
+					aPower = 0;
+				}
+				if (bFight) {
+					bPower = Critter.getRandomInt(fightList.get(1).energy + 1);
+				} else {
+					bPower = 0;
+				}
+				if (aPower >= bPower) {
+					fightList.get(0).energy += fightList.get(1).energy / 2;
+					fightList.get(1).energy = 0;
+					fightList.remove(1);
+				} else if (aPower < bPower) {
+					fightList.get(1).energy += fightList.get(0).energy / 2;
+					fightList.get(0).energy = 0;
+					fightList.remove(0);
+				}
+			}
+		}
+		return moved;
+	}	
+	
 	public static void displayWorld() {
 		// Creates 2D array of critters for positions on map
 		Critter[][] critterMap = new Critter[Params.world_width][Params.world_height];
