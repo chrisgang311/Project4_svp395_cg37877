@@ -68,8 +68,74 @@ public class Main {
 
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
+        boolean quit = false;
+        String userInput;
+    	String delim = "[ ]+";
         
-        System.out.println("GLHF");
+        while (!quit) {
+        	userInput = kb.nextLine();
+        	try {
+        		String[] tokens = userInput.split(delim);
+        		if (tokens.length > 3) {
+        			throw new ArrayIndexOutOfBoundsException("error processing: " + userInput);
+        		} else if (userInput.equals("quit")) {
+	        		quit = true;
+	        	} else if (userInput.equals("show")) {
+	        		Critter.displayWorld();
+	        	} else if (tokens[0].equals("step")) {
+	        		if (tokens.length == 2) {
+	        			for (int i = 0; i < Integer.parseInt(tokens[1]); i++) {
+	        				Critter.worldTimeStep();
+	        			}
+	        		} else if (tokens.length == 1) {
+	        			Critter.worldTimeStep();
+	        		}
+	        	} else if (tokens[0].equals("seed")) { 
+	        		Critter.setSeed(Integer.parseInt(tokens[1]));
+	        	} else if (tokens[0].equals("make")) {
+	        		if (tokens.length == 3) {
+	        			for (int i = 0; i < Integer.parseInt(tokens[2]); i++) {
+		        			Critter.makeCritter("assignment4." + tokens[1]);
+		        		}
+	        		} else if (tokens.length == 2) {
+	        			Critter.makeCritter("assignment4." + tokens[1]);
+	        		}
+	        	} else if (tokens[0].equals("stats")) {
+	        		Class critterSub = Class.forName("assignment4." + tokens[1]);
+	        		Critter critter = (Critter) critterSub.newInstance();
+	        		List<Critter> instances =  critter.getInstances("assignment4." + tokens[1]);
+	        		Class<?>[] types = {List.class};
+	    			Method sub = critterSub.getMethod("runStats", types);
+	    			sub.invoke(null, instances);
+	    			
+	        	} else {
+	        		System.out.println("invalid command: " + userInput);
+	        	}
+        	} catch (NumberFormatException e) {
+        		System.out.println("error processing: " + userInput);
+        	} catch (ArrayIndexOutOfBoundsException e) {
+        		System.out.println("error processing: " + userInput);
+        	} catch (InvalidCritterException e) {
+        		System.out.println("error processing: " + userInput);
+        	} catch (ClassNotFoundException e) {
+        		System.out.println("error processing: " + userInput);
+        	} catch (IllegalAccessException e) {
+        		System.out.println("error processing: " + userInput);
+    		} catch (InstantiationException e) {
+    			System.out.println("error processing: " + userInput);
+    		} catch (NoSuchMethodException e) {
+    			System.out.println("error processing: " + userInput);
+			} catch (SecurityException e) {
+				System.out.println("error processing: " + userInput);
+			} catch (IllegalArgumentException e) {
+				System.out.println("error processing: " + userInput);
+			} catch (InvocationTargetException e) {
+				System.out.println("error processing: " + userInput);
+			}
+        	
+        }
+        
+        
         
         /* Write your code above */
         System.out.flush();
