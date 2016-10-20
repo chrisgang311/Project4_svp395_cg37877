@@ -144,6 +144,23 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+		try {
+			Class critterSub = Class.forName(critter_class_name);
+			Critter critter = (Critter) critterSub.newInstance();
+			critter.x_coord = Critter.getRandomInt(Params.world_width);
+			critter.y_coord = Critter.getRandomInt(Params.world_height);
+			critter.energy = Params.start_energy;
+			population.add(critter);
+		}
+		catch (ClassNotFoundException e) {
+			throw new InvalidCritterException("error processing: " + critter_class_name);
+		}
+		catch (IllegalAccessException e) {
+			throw new InvalidCritterException("error processing: " + critter_class_name);
+		}
+		catch (InstantiationException e) {
+			throw new InvalidCritterException("error processing: " + critter_class_name);
+		}
 	}
 	
 	/**
