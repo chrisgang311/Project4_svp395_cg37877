@@ -393,7 +393,7 @@ public abstract class Critter {
 		for (int i = 0; i < Params.world_width; i++) {
 			System.out.print("-");
 		}
-		System.out.println("+" + " Number of critters: " + population.size());
+		System.out.println("+");
 		
 		// Prints map
 		for (int i = 0; i < Params.world_height; i++) {
