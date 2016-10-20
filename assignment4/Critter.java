@@ -238,9 +238,57 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
+		population.removeAll(population);
+		babies.removeAll(babies);
 	}
 	
 	public static void worldTimeStep() {
+		// Incrementing 2d int map where a critter exists
+		int[][] mapCount = new int[Params.world_width][Params.world_height];
+		for (Critter c : population) {
+			mapCount[c.x_coord][c.y_coord]++;
+		}
+		
+		// If  a place in the map is greater than 1 then 2 or more critter occupy 1 place
+		ArrayList<Critter> moved = new ArrayList<Critter>();
+		for (int i = 0; i < Params.world_height * Params.world_width; i++) {
+			if (mapCount[i % Params.world_width][i / Params.world_width] > 1) {
+				ArrayList<Critter> fightList = new ArrayList<Critter>();
+				for (Critter c : population) {
+					if (c.x_coord == i % Params.world_width && c.y_coord == i / Params.world_width) {
+						fightList.add(c);
+					}
+				}
+				moved.addAll(fightClub(fightList));
+			}
+		}
+		
+		ArrayList<Critter> removePop = new ArrayList<Critter>();
+		for (Critter c : population) {
+			if (!moved.contains(c)) c.doTimeStep();
+			c.energy -= Params.rest_energy_cost;
+			if (c.energy <= 0) {
+				removePop.add(c);
+			}
+		}
+		
+		// Culling the dead critters from the population
+		population.removeAll(removePop);
+		
+		// Adding all offspring to population
+		population.addAll(babies);
+		
+		// Clearing offspring array list
+		babies.clear();
+		
+		// Creating algae
+		try {
+			for (int i = 0; i < Params.refresh_algae_count; i++) {
+				Critter.makeCritter("assignment4.Algae");
+			}
+		} catch (InvalidCritterException e) {
+			System.out.println("error processing: " + "assignment4.Algae");
+		}
 	}
 	
 	public static ArrayList<Critter> fightClub(ArrayList<Critter> fightList) {
