@@ -49,14 +49,85 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
+	private void move(int stepSize, int direction) {
+		boolean xEdge = false;
+		boolean yEdge = false;
+		
+		// Find exceptions for critters at edges of map
+		// x_coord is at left edge
+		if (x_coord - stepSize < 0 && direction >= 3 && direction <= 5) {
+			x_coord = Params.world_width + x_coord - stepSize;
+			xEdge = true;
+		}
+		// y_coord is at top edge
+		if (y_coord - stepSize < 0 && direction >= 1 && direction <= 3) {
+			y_coord = Params.world_height + y_coord - stepSize;
+			yEdge = true;
+		}
+		// x_coord is at right edge
+		if (x_coord + stepSize > Params.world_width - 1 && (direction == 1 || direction == 0 || direction == 7)) {
+			x_coord = (x_coord + stepSize) % Params.world_width;
+			xEdge = true;
+		}
+		// y_coord is at bottom edge
+		if (y_coord + stepSize > Params.world_height - 1 && direction >= 5 && direction <= 7) {
+			y_coord = (y_coord + stepSize) % Params.world_height;
+
+			yEdge = true;
+		}
+		
+		// Changes the x and y coordinates of the critter
+		switch (direction) {
+		case 0: if (!xEdge)	x_coord += stepSize;
+				break;
+		case 1: if (!xEdge)	x_coord += stepSize;
+				if (!yEdge) y_coord -= stepSize;
+				break;
+		case 2: if (!yEdge) y_coord -= stepSize;
+				break;
+		case 3: if (!xEdge) x_coord -= stepSize;
+				if (!yEdge) y_coord -= stepSize;
+				break;
+		case 4: if (!xEdge) x_coord -= stepSize;
+				break;
+		case 5: if (!xEdge) x_coord -= stepSize;
+				if (!yEdge) y_coord += stepSize;
+				break;
+		case 6: if (!yEdge) y_coord += stepSize;
+				break;
+		case 7: if (!xEdge)	x_coord += stepSize;
+				if (!yEdge) y_coord += stepSize;
+				break;
+		default: break;
+		}
+		
+		
+		// Deduct energy cost for movement
+		if (stepSize == 1) {
+			energy -= Params.walk_energy_cost;
+		} else if (stepSize == 2) { 
+			energy -= Params.run_energy_cost;
+		}
+	}
+	
 	protected final void walk(int direction) {
+		move(1, direction);
 	}
 	
 	protected final void run(int direction) {
-		
+		move(2, direction);
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
+		if (this.energy < Params.min_reproduce_energy) {
+			return;
+		}
+		offspring.energy = (int) Math.floor((double) this.energy / 2);
+		this.energy = (int) Math.ceil((double) this.energy / 2);
+		offspring.x_coord = this.x_coord;
+		offspring.y_coord = this.y_coord;
+		offspring.move(1, direction);
+		babies.add(offspring);
 	}
 
 	public abstract void doTimeStep();
