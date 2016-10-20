@@ -49,6 +49,12 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
+	/**
+	 * The move method takes in a stepSize and direction and moves the critter in that direction with
+	 * the given step size. If the critter goes over the edge of the map it appears at the opposite edge.
+	 * @param stepSize size of step critter will take
+	 * @param direction direction critter will move in
+	 */
 	private void move(int stepSize, int direction) {
 		boolean xEdge = false;
 		boolean yEdge = false;
@@ -110,14 +116,28 @@ public abstract class Critter {
 		}
 	}
 	
+	/**
+	 * Critter will move 1 step in direction specified.
+	 * @param direction direction critter will move
+	 */
 	protected final void walk(int direction) {
 		move(1, direction);
 	}
 	
+	/**
+	 * Critter will move 2 steps in direction specified.
+	 * @param direction direction critter will move
+	 */
 	protected final void run(int direction) {
 		move(2, direction);
 	}
 	
+	/**
+	 * Reproduce will initialize the critter offspring passed in the parameter. The offspring will be 
+	 * placed in an adjacent space of the parent
+	 * @param offspring the critter object that will be initialized
+	 * @param direction the direction the critter offspring will be placed
+	 */
 	protected final void reproduce(Critter offspring, int direction) {
 		if (this.energy < Params.min_reproduce_energy) {
 			return;
@@ -266,7 +286,12 @@ public abstract class Critter {
 		population.removeAll(population);
 		babies.removeAll(babies);
 	}
-	
+
+	/**
+	 * This method will move each critter using its doTimeStep method and will resolve conflicts between critters.
+	 * It will also remove critters if they are dead. Finally the method will add offspring and algae to the critter
+	 * population at the end of the method.
+	 */
 	public static void worldTimeStep() {
 		// Incrementing 2d int map where a critter exists
 		int[][] mapCount = new int[Params.world_width][Params.world_height];
@@ -315,7 +340,13 @@ public abstract class Critter {
 			System.out.println("error processing: " + "assignment4.Algae");
 		}
 	}
-	
+
+	/**
+	 * Resolves conflicts between critters and returns an ArrayList of critters specifying the critters
+	 * that have moved during this method.
+	 * @param fightList the list of critters that are in conflict
+	 * @return moved the list of critters that have moved during this method
+	 */
 	public static ArrayList<Critter> fightClub(ArrayList<Critter> fightList) {
 		ArrayList<Critter> moved = new ArrayList<Critter>();
 		int oldXCoord = 0;
@@ -379,7 +410,10 @@ public abstract class Critter {
 		}
 		return moved;
 	}	
-	
+
+	/**
+	 * Displays the critter population on the console in their respective coordinates.
+	 */
 	public static void displayWorld() {
 		// Creates 2D array of critters for positions on map
 		Critter[][] critterMap = new Critter[Params.world_width][Params.world_height];
