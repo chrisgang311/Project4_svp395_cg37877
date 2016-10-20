@@ -12,6 +12,7 @@
 
 package assignment4;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* see the PDF for descriptions of the methods and fields in this class
@@ -165,7 +166,7 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try {
-			Class critterSub = Class.forName(critter_class_name);
+			Class critterSub = Class.forName("assignment4." + critter_class_name);
 			Critter critter = (Critter) critterSub.newInstance();
 			critter.x_coord = Critter.getRandomInt(Params.world_width);
 			critter.y_coord = Critter.getRandomInt(Params.world_height);
@@ -193,7 +194,7 @@ public abstract class Critter {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try {
 			for (Critter c : population) {
-				if (Class.forName(critter_class_name).isInstance(c)) {
+				if (Class.forName("assignment4." + critter_class_name).isInstance(c)) {
 					result.add(c);
 				}
 			}
@@ -295,11 +296,15 @@ public abstract class Critter {
 	public static void worldTimeStep() {
 		// Incrementing 2d int map where a critter exists
 		int[][] mapCount = new int[Params.world_width][Params.world_height];
+		for (int i = 0; i < Params.world_width * Params.world_height; i++) {
+			mapCount[i % Params.world_width][i / Params.world_width] = 0;
+		}
 		for (Critter c : population) {
 			mapCount[c.x_coord][c.y_coord]++;
 		}
 		
 		// If  a place in the map is greater than 1 then 2 or more critter occupy 1 place
+
 		ArrayList<Critter> moved = new ArrayList<Critter>();
 		for (int i = 0; i < Params.world_height * Params.world_width; i++) {
 			if (mapCount[i % Params.world_width][i / Params.world_width] > 1) {
@@ -312,6 +317,7 @@ public abstract class Critter {
 				moved.addAll(fightClub(fightList));
 			}
 		}
+		
 		
 		ArrayList<Critter> removePop = new ArrayList<Critter>();
 		for (Critter c : population) {
@@ -334,10 +340,10 @@ public abstract class Critter {
 		// Creating algae
 		try {
 			for (int i = 0; i < Params.refresh_algae_count; i++) {
-				Critter.makeCritter("assignment4.Algae");
+				Critter.makeCritter("Algae");
 			}
 		} catch (InvalidCritterException e) {
-			System.out.println("error processing: " + "assignment4.Algae");
+			System.out.println("error processing: " + "Algae");
 		}
 	}
 
@@ -351,60 +357,84 @@ public abstract class Critter {
 		ArrayList<Critter> moved = new ArrayList<Critter>();
 		int oldXCoord = 0;
 		int oldYCoord = 0;
-		boolean hasMoved = true;
+		boolean aHasMoved = false;
+		boolean bHasMoved = false;
 		while (fightList.size() > 1) {
+			oldXCoord = fightList.get(0).x_coord;
+			oldYCoord = fightList.get(0).y_coord;
 			boolean aFight = fightList.get(0).fight(fightList.get(1).toString());
+			if (fightList.get(0).x_coord != oldXCoord || fightList.get(0).y_coord != oldYCoord) {
+				aHasMoved = true;
+			}
+			oldXCoord = fightList.get(1).x_coord;
+			oldYCoord = fightList.get(1).y_coord;
 			boolean bFight = fightList.get(1).fight(fightList.get(0).toString());
+			if (fightList.get(1).x_coord != oldXCoord || fightList.get(1).y_coord != oldYCoord) {
+				bHasMoved = true;
+			}
 			if (!aFight) {
 				oldXCoord = fightList.get(0).x_coord;
 				oldYCoord = fightList.get(0).y_coord;
-				fightList.get(0).doTimeStep();
+				if (!aHasMoved) {
+					fightList.get(0).doTimeStep();
+				}
 				for (Critter c : population) {
-					if (fightList.get(0).x_coord == c.x_coord && fightList.get(0).y_coord == c.y_coord) {
+					if (fightList.get(0).x_coord == c.x_coord && fightList.get(0).y_coord == c.y_coord && !fightList.get(0).equals(c)) {
 						fightList.get(0).x_coord = oldXCoord;
 						fightList.get(0).y_coord = oldYCoord;
-						hasMoved = false;
+						aHasMoved = false;
 					}
 				}
-				if (hasMoved) 
+				
+				if (aHasMoved) 
 					moved.add(fightList.get(0));
 			}
 			if (!bFight) {
 				oldXCoord = fightList.get(1).x_coord;
 				oldYCoord = fightList.get(1).y_coord;
-				fightList.get(1).doTimeStep();
+				if (!bHasMoved) {
+					fightList.get(1).doTimeStep();
+				}
 				for (Critter c : population) {
-					if (fightList.get(1).x_coord == c.x_coord && fightList.get(1).y_coord == c.y_coord) {
+					if (fightList.get(1).x_coord == c.x_coord && fightList.get(1).y_coord == c.y_coord && !fightList.get(1).equals(c)) {
 						fightList.get(1).x_coord = oldXCoord;
 						fightList.get(1).y_coord = oldYCoord;
-						hasMoved = false;
+						bHasMoved = false;
 					}
 				}
-				if (hasMoved) 
+				if (bHasMoved) 
 					moved.add(fightList.get(1));
 			}
-			if (fightList.get(0).x_coord == fightList.get(1).x_coord &&
-					fightList.get(0).y_coord == fightList.get(1).y_coord &&
-					fightList.get(0).energy > 0 && fightList.get(1).energy > 0) {
-				int aPower, bPower;
-				if (aFight) {
-					aPower = Critter.getRandomInt(fightList.get(0).energy + 1);
-				} else {
-					aPower = 0;
-				}
-				if (bFight) {
-					bPower = Critter.getRandomInt(fightList.get(1).energy + 1);
-				} else {
-					bPower = 0;
-				}
-				if (aPower >= bPower) {
-					fightList.get(0).energy += fightList.get(1).energy / 2;
-					fightList.get(1).energy = 0;
-					fightList.remove(1);
-				} else if (aPower < bPower) {
-					fightList.get(1).energy += fightList.get(0).energy / 2;
-					fightList.get(0).energy = 0;
-					fightList.remove(0);
+			if (!aFight) {
+				fightList.remove(0);
+			}
+			if (!bFight) {
+				fightList.remove(0);
+			}
+			if (fightList.size() >= 2) {
+				if (fightList.get(0).x_coord == fightList.get(1).x_coord &&
+						fightList.get(0).y_coord == fightList.get(1).y_coord &&
+						fightList.get(0).energy > 0 && fightList.get(1).energy > 0) {
+					int aPower, bPower;
+					if (aFight) {
+						aPower = Critter.getRandomInt(fightList.get(0).energy + 1);
+					} else {
+						aPower = 0;
+					}
+					if (bFight) {
+						bPower = Critter.getRandomInt(fightList.get(1).energy + 1);
+					} else {
+						bPower = 0;
+					}
+					if (aPower >= bPower) {
+						fightList.get(0).energy += fightList.get(1).energy / 2;
+						fightList.get(1).energy = 0;
+						fightList.remove(1);
+					} else if (aPower < bPower) {
+						fightList.get(1).energy += fightList.get(0).energy / 2;
+						fightList.get(0).energy = 0;
+						fightList.remove(0);
+					}
 				}
 			}
 		}
