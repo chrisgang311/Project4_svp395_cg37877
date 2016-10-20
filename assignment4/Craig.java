@@ -1,3 +1,15 @@
+/* CRITTERS <Craig.java>
+ * EE422C Project 4 submission by
+ * <Samuel Patterson>
+ * <svp395>
+ * <16445>
+ * <Christopher Gang>
+ * <cg37877>
+ * <16445>
+ * Slip days used: <0>
+ * Fall 2016
+ */
+
 package assignment4;
 
 /*
